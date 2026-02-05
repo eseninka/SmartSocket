@@ -22,3 +22,4 @@ void loop() {
   Serial.println(rms_A, 3);
 
 }
+// привет git!
