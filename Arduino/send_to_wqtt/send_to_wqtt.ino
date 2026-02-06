@@ -1,14 +1,13 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
-
 #include "read_AC.h"
-
 #include <WiFiClient.h>
-
+#include "Cl_timestamp.h"
 
 // Настройки Wi-Fi
 const char* ssid = "ForEsp32";
 const char* password = "aztj5781";
+
 
 // Настройки MQTT
 const char* mqtt_server = "m5.wqtt.ru";
@@ -21,6 +20,7 @@ const char* mqtt_topic_pub = "kvant/R22/BV/update";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+timeSt test_send_time;
 
 
 read_AC read_ac;
@@ -34,6 +34,7 @@ void setup() {
   client.setBufferSize(4096);  // Увеличиваем буфер сообщений
   //client.setCallback(callback);  // Функция обработки входящих сообщений
   read_ac.initialization();
+  test_send_time.timeSetting("pool.ntp.org", 3 * 3600, 0);  // для timestamp | GMT+3 (Москва) = 3 * 3600 секунд, Летнее время (0, если не используется)
 }
 
 void loop() {
@@ -55,7 +56,7 @@ void loop() {
   Serial.println(json);
   client.publish(mqtt_topic_pub, json.c_str());
 
-  delay(10000);
+  delay(1000);
 }
 // Подключение к WiFi
 void setupWiFi() {
@@ -100,6 +101,8 @@ void reconnectMQTT() {
 }
 
 String create_json(float A[20], float V[20], float rms_A, float rms_V) {
+  test_send_time.timeStam();
+
   String As = "";
   String Vs = "";
 
@@ -116,7 +119,7 @@ String create_json(float A[20], float V[20], float rms_A, float rms_V) {
   jsonchik += "\"key\":\"info_about_AC\",";
   jsonchik += "\"uuid\":\"c8b6b828-7bef-4aa4-83a4-ed0fbc27e917\",";
   //jsonchik += "\"timestamp\":" + String(test_send_time.timeS) + ",";
-  jsonchik += "\"timestamp\":" + String(12345678) + ",";
+  jsonchik += "\"timestamp\":" + String(test_send_time.timeS) + ",";
   jsonchik += "\"amper\": { \"data\":[" + As + "]},";
   jsonchik += "\"voltage\": { \"data\":[" + Vs + "]},";
   jsonchik += "\"rms_A\":" + String(rms_A) + ",";
