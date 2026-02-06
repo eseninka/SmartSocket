@@ -1,5 +1,4 @@
 import paho.mqtt.client as mqtt
-import numpy as np
 import json
 from class_roz import obrabotka
 
