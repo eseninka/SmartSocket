@@ -10,7 +10,7 @@ obr.update_data(amp_new=a, volt_new=v)
 
 obr.raschet()
 print(obr.cosfi)
-print(obr.fi)
+print(obr.Q)
 print(obr.P)
 print(obr.S)
 print(obr.P)
