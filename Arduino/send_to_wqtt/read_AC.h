@@ -51,6 +51,10 @@ public:
     for (int i = 0; i < 20; i++) {
       voltage_V[i] = (voltage_signal[i] - 2800) * 0.41;
     }
-    rms_voltage = voltageSensor.getRmsVoltage();
+    if (voltageSensor.getRmsVoltage() > 55) {
+      rms_voltage = voltageSensor.getRmsVoltage();
+    } else {
+      rms_voltage = 0;
+    }
   }
 };

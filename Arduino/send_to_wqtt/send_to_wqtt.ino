@@ -5,8 +5,8 @@
 #include "Cl_timestamp.h"
 
 // Настройки Wi-Fi
-const char* ssid = "ForEsp32";
-const char* password = "aztj5781";
+const char* ssid = "WI-FI";
+const char* password = "6LpEL3nx";
 
 
 // Настройки MQTT
@@ -56,7 +56,7 @@ void loop() {
   Serial.println(json);
   client.publish(mqtt_topic_pub, json.c_str());
 
-  delay(1000);
+  delay(5000);
 }
 // Подключение к WiFi
 void setupWiFi() {
