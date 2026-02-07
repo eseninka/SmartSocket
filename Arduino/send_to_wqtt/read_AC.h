@@ -31,26 +31,22 @@ public:
     return sqrt(sumMean);
   }
 
-  void read_current() {
+  void read_current_and_voltage() {
     for (int i = 0; i < 20; i++) {
       current_signal[i] = analogRead(32);
-      delayMicroseconds(900);
+      voltage_signal[i] = analogRead(35);
+      delayMicroseconds(800);
     }
     for (int i = 0; i < 20; i++) {
-      current_A[i] = (current_signal[i] - 2837) * 0.00435;
+      current_A[i] = (current_signal[i] - 2750) * 0.00435;
+      if (abs((voltage_signal[i] - 2800) * 0.41) > 55) {
+        voltage_V[i] = (voltage_signal[i] - 2800) * 0.42;
+      } else {
+        voltage_V[i] = 0;
+      }
     }
     rms_mA = sensor.mA_AC_sampling();
     rms_A = rms_mA / 1000.0;
-  }
-
-  void read_voltage() {
-    for (int i = 0; i < 20; i++) {
-      voltage_signal[i] = analogRead(35);
-      delayMicroseconds(900);
-    }
-    for (int i = 0; i < 20; i++) {
-      voltage_V[i] = (voltage_signal[i] - 2800) * 0.41;
-    }
     if (voltageSensor.getRmsVoltage() > 55) {
       rms_voltage = voltageSensor.getRmsVoltage();
     } else {

@@ -5,8 +5,8 @@
 #include "Cl_timestamp.h"
 
 // Настройки Wi-Fi
-const char* ssid = "WI-FI";
-const char* password = "6LpEL3nx";
+const char* ssid = "ForEsp32";
+const char* password = "aztj5781";
 
 
 // Настройки MQTT
@@ -29,7 +29,9 @@ bool mqttConnected = false;  // Флаг подключения
 
 void setup() {
   Serial.begin(115200);
+  delay(5000);
   setupWiFi();
+  delay(1000);
   client.setServer(mqtt_server, mqtt_port);
   client.setBufferSize(4096);  // Увеличиваем буфер сообщений
   //client.setCallback(callback);  // Функция обработки входящих сообщений
@@ -50,8 +52,7 @@ void loop() {
 
   client.loop();
   //Публикация сообещния
-  read_ac.read_current();
-  read_ac.read_voltage();
+  read_ac.read_current_and_voltage();
   String json = create_json(read_ac.current_A, read_ac.voltage_V, read_ac.rms_A, read_ac.rms_voltage);
   Serial.println(json);
   client.publish(mqtt_topic_pub, json.c_str());
@@ -63,7 +64,6 @@ void setupWiFi() {
   Serial.println();
   Serial.print("Подключение к ");
   Serial.println(ssid);
-
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
