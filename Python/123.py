@@ -34,12 +34,14 @@ def on_message(client, userdata, msg):
         connection.autocommit = True
         with connection.cursor() as cursor:
             cursor.execute('insert into data_current(uuid, flash_current, rms_current) values (%s, %s, %s)', (data['uuid'], str(data['amper']['data']), str(data['rms_A'])))
+            cursor.execute('insert into data_voltage(uuid, flash_voltage, rms_voltage) values (%s, %s, %s)', (data['uuid'], str(data['voltage']['data']), str(data['rms_V'])))
     except Exception as e:
         print(f'[info]: Ошибка {e}')
     finally:
         if connection:
             connection.close()
             print('[info]: коннект закрыт')
+
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_message = on_message  # Обработчик сообщений
