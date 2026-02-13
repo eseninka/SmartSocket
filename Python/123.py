@@ -9,7 +9,11 @@ password = '123'
 database = 'SmartSocket'
 connect = '5432'
 
+MQTT_TOPIC = 'kvant/R22/BV/reception'
+
 obr = obrabotka()
+
+
 
 def on_message(client, userdata, msg):
     print(f"Топик: {msg.topic}, Сообщение: {msg.payload.decode()}, Тип данных {type(msg.payload.decode())}")
@@ -28,13 +32,39 @@ def on_message(client, userdata, msg):
     print(obr.I_rms)
     print(obr.U_rms)
     print(obr.P_rms)
-    #client.publish("kvant/R22/BV/test", str(data['rms_A']))
+    # client.publish("kvant/R22/BV/test", str(data['rms_A']))
     try:
         connection = psycopg2.connect(host=host, user=name_user, password=password, database=database)
         connection.autocommit = True
         with connection.cursor() as cursor:
-            cursor.execute('insert into data_current(uuid, flash_current, rms_current) values (%s, %s, %s)', (data['uuid'], str(data['amper']['data']), str(data['rms_A'])))
-            cursor.execute('insert into data_voltage(uuid, flash_voltage, rms_voltage) values (%s, %s, %s)', (data['uuid'], str(data['voltage']['data']), str(data['rms_V'])))
+            cursor.execute('insert into data_current(uuid, flash_current, rms_current) values (%s, %s, %s)',
+                           (data['uuid'], str(data['amper']['data']), str(data['rms_A'])))
+            cursor.execute('insert into data_voltage(uuid, flash_voltage, rms_voltage) values (%s, %s, %s)',
+                           (data['uuid'], str(data['voltage']['data']), str(data['rms_V'])))
+            cursor.execute('insert into calculation(uuid, P, I, V, cosfi) values (%s, %s, %s, %s, %s)', (
+                data['uuid'], str(data['rms_A'] * data['rms_V']), str(data['rms_A']), str(data['rms_V']),
+                str(obr.cosfi)))
+    except Exception as e:
+        print(f'[info]: Ошибка {e}')
+    finally:
+        if connection:
+            connection.close()
+            print('[info]: коннект закрыт')
+    try:
+        connection = psycopg2.connect(host=host, user=name_user, password=password, database=database)
+        connection.autocommit = True
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT SUM(I * V) / 3600.0 / 1000.0 FROM (SELECT I, V FROM calculation ORDER BY num_measurements DESC LIMIT 3600) AS last_hour')
+            P_kWh = cursor.fetchone()[0]
+            I_mg = data['rms_A']
+            V_mg = data['rms_V']
+            money = P_kWh * 5.77
+            cosfi = obr.cosfi
+            P = I_mg * V_mg
+            reception = {"P": P, "I_mg": I_mg, "V_mg": V_mg, "money": money, "cosfi": cosfi}
+            with open('reception.json', 'w', encoding='utf-8') as file:
+                json.dump(reception, file, ensure_ascii=False, indent=4)
+            client.publish(MQTT_TOPIC, json.dumps(reception))
     except Exception as e:
         print(f'[info]: Ошибка {e}')
     finally:
