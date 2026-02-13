@@ -1,6 +1,6 @@
 #include "ACS712.h"
 
-ACS712 sensor(32, 3.3, 4095, 160.0);
+ACS712 sensor(32, 3.3, 4095, 170.0);
 
 int current_signal[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 float current_A[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
