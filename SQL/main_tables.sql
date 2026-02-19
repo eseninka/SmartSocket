@@ -7,7 +7,7 @@ P                       real not null,
 I                       real not null,
 V                       real not null,
 cosfi                   real not null
-)
+);
 
 create table data_current
 (
@@ -16,7 +16,7 @@ uuid text               not null,
 time                    timestamp default current_timestamp,
 flash_current           text not null,
 rms_current             real not null
-)
+);
 
 create table data_voltage
 (
@@ -25,4 +25,4 @@ uuid text               not null,
 time                    timestamp default current_timestamp,
 flash_voltage           text not null,
 rms_voltage             real not null
-)
+);
