@@ -16,9 +16,14 @@
 
 
 // Настройки Wi-Fi
-const char* ssid = "ForEsp32";
-const char* password = "aztj5781";
+// const char* ssid = "ForEsp32";
+// const char* password = "aztj5781";
 
+// const char* ssid = "WI-FI";
+// const char* password = "6LpEL3nx";
+
+const char* ssid = "CPOD";
+const char* password = "ApoX51s42wR7FDK8";
 
 // Настройки MQTT
 const char* mqtt_server = "m5.wqtt.ru";
@@ -53,6 +58,7 @@ void setup() {
   delay(1000);
 
   client.setCallback(callback);  // Функция обработки входящих сообщений
+  delay(2000);
 
   read_ac.initialization();
   test_send_time.timeSetting("pool.ntp.org", 3 * 3600, 0);  // для timestamp | GMT+3 (Москва) = 3 * 3600 секунд, Летнее время (0, если не используется)
@@ -90,7 +96,7 @@ void loop() {
   Serial.println(json);
   client.publish(mqtt_topic_pub, json.c_str());
 
-  delay(1000);
+  delay(5000);
 }
 // Подключение к WiFi
 void setupWiFi() {

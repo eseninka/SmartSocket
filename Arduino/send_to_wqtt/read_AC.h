@@ -7,7 +7,7 @@ private:
   ZMPT101B voltageSensor;
 public:
   read_AC()
-    : sensor(32, 3.3, 4095, 160.0), voltageSensor(35, 50.0) {}
+    : sensor(32, 3.3, 4095, 170.0), voltageSensor(35, 50.0) {}
   int current_signal[20] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   float current_A[20] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   int voltage_signal[20] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
