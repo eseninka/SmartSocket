@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 from class_roz import obrabotka
 import psycopg2
+from datetime import datetime
 
 host = 'localhost'
 name_user = 'postgres'
@@ -13,6 +14,7 @@ MQTT_TOPIC = 'kvant/R22/BV/reception'
 
 obr = obrabotka()
 
+last_hour = datetime.now().hour
 
 
 def on_message(client, userdata, msg):
@@ -54,8 +56,9 @@ def on_message(client, userdata, msg):
         connection = psycopg2.connect(host=host, user=name_user, password=password, database=database)
         connection.autocommit = True
         with connection.cursor() as cursor:
-            cursor.execute('SELECT SUM(I * V) / 3600.0 / 1000.0 FROM (SELECT I, V FROM calculation ORDER BY num_measurements DESC LIMIT 3600) AS last_hour')
-            P_kWh = cursor.fetchone()[0]
+            cursor.execute('SELECT sum(data_records) from data_power_records where date_records = CURRENT_DATE')
+            #row = cursor.fetchone()
+            P_kWh = cursor.fetchone()[0] or 0
             I_mg = data['rms_A']
             V_mg = data['rms_V']
             money = P_kWh * 5.77
@@ -71,6 +74,24 @@ def on_message(client, userdata, msg):
         if connection:
             connection.close()
             print('[info]: коннект закрыт')
+    global last_hour
+    now = datetime.now()
+    if now.hour != last_hour:
+        try:
+            connection = psycopg2.connect(host=host, user=name_user, password=password, database=database)
+            connection.autocommit = True
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'SELECT uuid, SUM(I * V) / 720.0 / 1000.0 FROM (SELECT I, V, uuid FROM calculation ORDER BY num_measurements DESC LIMIT 720) AS last_hour GROUP BY uuid')
+                data = cursor.fetchall()
+                cursor.execute('insert into data_power_records(uuid, data_records) values(%s, %s)',
+                               (data[0][0], str(data[0][1])))
+            last_hour = now.hour
+        except Exception as e:
+            print(f'[info]: Ошибка {e}')
+        finally:
+            if connection:
+                connection.close()
 
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)

@@ -26,3 +26,11 @@ time                    timestamp default current_timestamp,
 flash_voltage           text not null,
 rms_voltage             real not null
 );
+
+create table data_power_records
+(
+num_records serial      primary key,
+uuid text               not null,
+date_records            DATE DEFAULT CURRENT_DATE,
+data_records            real not null
+);
